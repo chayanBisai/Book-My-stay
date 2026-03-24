@@ -1,0 +1,112 @@
+import java.util.*;
+
+class Room {
+    private String type;
+    private double price;
+    private List<String> amenities;
+
+    public Room(String type, double price, List<String> amenities) {
+        this.type = type;
+        this.price = price;
+        this.amenities = amenities;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public List<String> getAmenities() {
+        return amenities;
+    }
+
+    public void displayDetails() {
+        System.out.println("Room Type: " + type);
+        System.out.println("Price: ₹" + price);
+        System.out.println("Amenities: " + String.join(", ", amenities));
+        System.out.println(" ");
+    }
+}
+
+class Inventory {
+    private Map<String, Integer> availabilityMap = new HashMap<>();
+
+    public void addRoom(String roomType, int count) {
+        availabilityMap.put(roomType, count);
+    }
+
+    public int getAvailability(String roomType) {
+        return availabilityMap.getOrDefault(roomType, 0);
+    }
+
+    public Map<String, Integer> getAllAvailability() {
+        return Collections.unmodifiableMap(availabilityMap);
+    }
+}
+
+class SearchService {
+
+    private Inventory inventory;
+    private Map<String, Room> roomCatalog;
+
+    public SearchService(Inventory inventory, Map<String, Room> roomCatalog) {
+        this.inventory = inventory;
+        this.roomCatalog = roomCatalog;
+    }
+
+    public void searchAvailableRooms() {
+        System.out.println("Available Rooms:\n");
+
+        Map<String, Integer> availability = inventory.getAllAvailability();
+
+        for (String roomType : availability.keySet()) {
+            int count = availability.get(roomType);
+
+            if (count <= 0) {
+                continue;
+            }
+
+            if (!roomCatalog.containsKey(roomType)) {
+                continue;
+            }
+
+            Room room = roomCatalog.get(roomType);
+
+            room.displayDetails();
+            System.out.println("Available Count: " + count);
+            System.out.println(" ");
+        }
+    }
+}
+
+public class UseCase4RoomSearch {
+
+    public static void main(String[] args) {
+
+        Inventory inventory = new Inventory();
+        inventory.addRoom("Single", 5);
+        inventory.addRoom("Double", 0);
+        inventory.addRoom("Suite", 2);
+
+        Map<String, Room> roomCatalog = new HashMap<>();
+
+        roomCatalog.put("Single",
+                new Room("Single", 2000,
+                        Arrays.asList("WiFi", "TV")));
+
+        roomCatalog.put("Double",
+                new Room("Double", 3500,
+                        Arrays.asList("WiFi", "TV", "AC")));
+
+        roomCatalog.put("Suite",
+                new Room("Suite", 6000,
+                        Arrays.asList("WiFi", "TV", "AC", "Mini Bar")));
+
+        SearchService searchService = new SearchService(inventory, roomCatalog);
+
+        searchService.searchAvailableRooms();
+    }
+}
